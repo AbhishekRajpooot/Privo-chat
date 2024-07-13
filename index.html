@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privo_Area</Area></title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav>
+        <img class ="logo" src="privo_log.png" alt="#">  
+        <h1>Welcome to Privo Area Chat session</h1>
+        
+    </nav>
+    <div class="container">
+        
+    </div>
+    <div class="send">
+        <form action="#" id="send-container">
+            <input type="text" name="messageInput" id="messageInput">
+            <button class="btn" type="submit">Send</button>
+        </form>
+
+    </div>
+
+    
+    <script src="http://localhost:8888/socket.io/socket.io.js"></script>
+    <script>
+        //socket code in js
+        const socket = io.connect("http://localhost:8888");
+        var audio = new Audio('ting2.mp3');
+        var audio2 = new Audio("ting.mp3")
+
+
+        //get the elements
+        const form = document.getElementById("send-container")
+        const messageInput = document.getElementById("messageInput");
+        const messageContainer = document.querySelector('.container');
+
+        const append = (message,position)=>{
+            const messageElement = document.createElement('div');
+            messageElement.innerText=message;
+            messageElement.classList.add('message');
+            messageElement.classList.add(position);
+            messageContainer.append(messageElement);
+            audio.play();
+
+        }
+
+        form.addEventListener('submit',(e)=>{
+            e.preventDefault();
+            const message = messageInput.value;
+            append(`You: ${message}`, 'right')
+            socket.emit('send', message);
+            messageInput.value = '';
+        })
+
+        const name = prompt("Enter your name to join")
+        socket.emit('new-user-joined',name);
+         
+
+        socket.on('user-joined',(name)=>{
+            
+            append(`${name} joined the Privo Area`, 'right')
+        });
+
+        socket.on('receive',(data)=>{
+            append(`${data.name}:${data.message}`,'left')
+        });
+        
+        socket.on('left',(name)=>{
+            append(`${name}Left the chat`,'left')
+        })
+
+    </script>
+</body>
+</html>
